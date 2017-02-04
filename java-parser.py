@@ -1,6 +1,8 @@
 __author__ = 'lan'
 from os.path import isfile
 import re
+import os
+import sys
 
 class JavaParser:
     def __init__(self):
@@ -138,3 +140,19 @@ class JavaParser:
         if staccfin_re is not None:
             self.final_static_order_dict['staccfin'] += len(staccfin_re)
 
+if __name__ == '__main__':
+    java_parser = JavaParser()
+    dir_path = url = sys.argv[1]
+    for file_name in os.listdir(dir_path):
+        if not file_name.endswith('.java'):
+            continue
+        print "Parsing file : " + file_name
+        java_parser.parse(os.path.join(dir_path, file_name))
+    print java_parser.indent_dict
+    print java_parser.block_statement_dict
+    print java_parser.constant_dict
+    print java_parser.condition_statement_dict
+    print java_parser.argument_dict
+    print java_parser.line_length_dict
+    print java_parser.static_var_dict
+    print java_parser.final_static_order_dict

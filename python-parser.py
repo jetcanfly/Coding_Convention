@@ -1,6 +1,8 @@
 __author__ = 'lan'
 from os.path import isfile
 import re
+import os
+import sys
 
 class PythonParser:
     def __init__(self):
@@ -69,7 +71,17 @@ class PythonParser:
 
 
 if __name__ == '__main__':
-    a = PythonParser()
-    a.parse("E:\\Python_workspace\\popularconvention\\python-parser.py")
+    py_parser = PythonParser()
+    # a.parse("E:\\Python_workspace\\popularconvention\\python-parser.py")
 
-    print 'a'
+    dir_path = url = sys.argv[1]
+    # dir_path = '/Users/sun/Workspace/Coding_Convention'
+    for file_name in os.listdir(dir_path):
+        if not file_name.endswith('.py'):
+            continue
+        print "Parsing file : " + file_name
+        py_parser.parse(os.path.join(dir_path, file_name))
+    print py_parser.indent_dict
+    print py_parser.line_length_dict
+    print py_parser.imports_dict
+    print py_parser.whitespace_dict
