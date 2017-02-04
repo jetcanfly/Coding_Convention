@@ -21,6 +21,11 @@ class RubyParser:
             stream = fd.read()
             self.indent(stream)
             self.line_length(stream)
+            self.whitespace(stream)
+            self.assign_default_val(stream)
+            self.numeric_literal(stream)
+            self.def_no_args(stream)
+            self.def_args(stream)
 
     def indent(self, stream):
         tab_pattern = re.compile(r'^\t+.*', re.M)
