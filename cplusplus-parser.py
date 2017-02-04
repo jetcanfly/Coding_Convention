@@ -111,14 +111,14 @@ if __name__ == '__main__':
     cpp_parser = cplusplusParser()
     dir_path = url = sys.argv[1]
     for file_name in os.listdir(dir_path):
-        print file_name
         if not file_name.endswith('.cpp') and not file_name.endswith('.h'):
             continue
         print "Parsing file : " + file_name
         cpp_parser.parse(os.path.join(dir_path, file_name))
-    print cpp_parser.indent_dict
-    print cpp_parser.block_statement_dict
-    print cpp_parser.constant_dict
-    print cpp_parser.condition_statement_dict
-    print cpp_parser.argument_dict
-    print cpp_parser.line_length_dict
+    print('\n')
+    print('C++ indent_dict: {0}'.format(cpp_parser.indent_dict))
+    print('C++ block_statement_dict: {0}'.format(cpp_parser.block_statement_dict))
+    print('C++ constant_dict: {0}'.format(cpp_parser.constant_dict))
+    print('C++ condition_statement_dict: {0}'.format(cpp_parser.condition_statement_dict))
+    print('C++ argument_dict: {0}'.format(cpp_parser.argument_dict))
+    print('C++ line_length_dict: {0}'.format(cpp_parser.line_length_dict))
