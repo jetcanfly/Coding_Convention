@@ -148,11 +148,12 @@ if __name__ == '__main__':
             continue
         print "Parsing file : " + file_name
         java_parser.parse(os.path.join(dir_path, file_name))
-    print java_parser.indent_dict
-    print java_parser.block_statement_dict
-    print java_parser.constant_dict
-    print java_parser.condition_statement_dict
-    print java_parser.argument_dict
-    print java_parser.line_length_dict
-    print java_parser.static_var_dict
-    print java_parser.final_static_order_dict
+    print('\n')
+    print('Java indent_dict: {0}'.format(java_parser.indent_dict))
+    print('Java block_statement_dict: {0}'.format(java_parser.block_statement_dict))
+    print('Java constant_dict: {0}'.format(java_parser.constant_dict))
+    print('Java condition_statement_dict: {0}'.format(java_parser.condition_statement_dict))
+    print('Java argument_dict: {0}'.format(java_parser.argument_dict))
+    print('Java line_length_dict: {0}'.format(java_parser.line_length_dict))
+    print('Java static_var_dict: {0}'.format(java_parser.static_var_dict))
+    print('Java final_static_order_dict: {0}'.format(java_parser.final_static_order_dict))

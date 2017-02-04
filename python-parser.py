@@ -72,16 +72,14 @@ class PythonParser:
 
 if __name__ == '__main__':
     py_parser = PythonParser()
-    # a.parse("E:\\Python_workspace\\popularconvention\\python-parser.py")
-
     dir_path = url = sys.argv[1]
-    # dir_path = '/Users/sun/Workspace/Coding_Convention'
     for file_name in os.listdir(dir_path):
         if not file_name.endswith('.py'):
             continue
         print "Parsing file : " + file_name
         py_parser.parse(os.path.join(dir_path, file_name))
-    print py_parser.indent_dict
-    print py_parser.line_length_dict
-    print py_parser.imports_dict
-    print py_parser.whitespace_dict
+    print('\n')
+    print('Python indent_dict: {0}'.format(py_parser.indent_dict))
+    print('Python line_length_dict: {0}'.format(py_parser.line_length_dict))
+    print('Python imports_dict: {0}'.format(py_parser.imports_dict))
+    print('Python whitespace_dict: {0}'.format(py_parser.whitespace_dict))

@@ -1,6 +1,9 @@
 __author__ = 'lan'
 from os.path import isfile
 import re
+import os
+import sys
+
 
 class RubyParser:
     def __init__(self):
@@ -108,7 +111,7 @@ class RubyParser:
             self.numeric_literal_dict['no_underscore'] += len(no_underscore_re)
 
     def def_no_args(self, stream):
-        omit_pattern = re.compile(r'^[\s\t]*def\s+\w+\s*[^(),\w]*(#+.*)*$'. re.M)
+        omit_pattern = re.compile(r'^[\s\t]*def\s+\w+\s*[^(),\w]*(#+.*)*$', re.M)
         use_pattern = re.compile(r'^[\s\t]*def\s+\w+\s*\(\s*\)', re.M)
 
         omit_re = re.findall(omit_pattern, stream)
@@ -132,7 +135,18 @@ class RubyParser:
             self.def_args_dict['use'] += len(use_re)
 
 if __name__ == '__main__':
-    a = RubyParser()
-    a.parse("E:\\Python_workspace\\popularconvention\\python-parser.py")
-
-    print 'a'
+    rb_parser = RubyParser()
+    dir_path = url = sys.argv[1]
+    for file_name in os.listdir(dir_path):
+        if not file_name.endswith('.rb'):
+            continue
+        print "Parsing file : " + file_name
+        rb_parser.parse(os.path.join(dir_path, file_name))
+    print('\n')
+    print('Ruby indent_dict: {0}'.format(rb_parser.indent_dict))
+    print('Ruby line_length_dict: {0}'.format(rb_parser.line_length_dict))
+    print('Ruby whitespace_dict: {0}'.format(rb_parser.whitespace_dict))
+    print('Ruby assign_default_val_dict: {0}'.format(rb_parser.assign_default_val_dict))
+    print('Ruby numeric_literal_dict: {0}'.format(rb_parser.numeric_literal_dict))
+    print('Ruby def_no_args_dict: {0}'.format(rb_parser.def_no_args_dict))
+    print('Ruby def_args_dict: {0}'.format(rb_parser.def_args_dict))
