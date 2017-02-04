@@ -12,6 +12,8 @@ class cplusplusParser:
         self.condition_statement_dict = {'one_space': 0, 'no_space': 0}
         self.argument_dict = {'one_space': 0, 'no_space': 0}
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
+        self.begin_with_upper_dict = {'upper': 0, 'lower': 0}
+        self.whitespace_dict = {'both': 0, 'not_both': 0}
 
     def parse(self, cpp_file):
         if not isfile(cpp_file) or (not cpp_file.endswith('.cpp')  and not cpp_file.endswith('.h')):
@@ -26,6 +28,8 @@ class cplusplusParser:
             self.condition_statement(stream)
             self.argument(stream)
             self.line_length(stream)
+            self.begin_with_upper(stream)
+            self.whitespace(stream)
 
     def indent(self, stream):
         tab_pattern = re.compile(r'^\t+.*', re.M)
@@ -63,7 +67,7 @@ class cplusplusParser:
 
         pascal_re = re.findall(pascal_pattern, stream)
         if pascal_re is not None:
-          self.constant_dict['pascal'] += len(pascal_re)
+            self.constant_dict['pascal'] += len(pascal_re)
 
         all_caps_re = re.findall(all_caps_pattern, stream)
         if all_caps_re is not None:
@@ -107,6 +111,38 @@ class cplusplusParser:
             else:
                 self.line_length_dict['char150'] += 1
 
+    def begin_with_upper(self, stream):
+        class_upper_patter = re.compile(r'\s*typedef.*\s[A-Z][\w]+;$', re.M)
+        class_lower_patter = re.compile(r'\s*typedef.*\s[a-z][\w]+;$', re.M)
+
+        class_upper_re = re.findall(class_upper_patter, stream)
+        if class_upper_re is not None:
+            self.begin_with_upper_dict['upper'] += len(class_upper_re)
+
+        class_lower_re = re.findall(class_lower_patter, stream)
+        if class_lower_re is not None:
+            self.begin_with_upper_dict['lower'] += len(class_lower_re)
+
+    def whitespace(self, stream):
+        both_pattern = re.compile(r'.*\s(=|==|!=)\s.*', re.M)
+        not_both_patter = re.compile(r'.*=|==|!=.*', re.M)
+
+        both_re = re.findall(both_pattern, stream)
+        if both_re is not None:
+            self.whitespace_dict['both'] += len(both_re)
+
+        not_both_re = re.findall(not_both_patter, stream)
+        if not_both_re is not None:
+            self.whitespace_dict['not_both'] += (len(not_both_re) - len(both_re))
+
+    def __str__(self):
+        return_string = ''
+        for each in self.__dict__:
+            if each.endswith('_dict'):
+                return_string += '{}: '.format(each).ljust(30)
+                return_string += '{}\n'.format(self.__dict__[each])
+        return return_string
+
 if __name__ == '__main__':
     cpp_parser = cplusplusParser()
     dir_path = url = sys.argv[1]
@@ -116,9 +152,10 @@ if __name__ == '__main__':
         print "Parsing file : " + file_name
         cpp_parser.parse(os.path.join(dir_path, file_name))
     print('\n')
-    print('C++ indent_dict: {0}'.format(cpp_parser.indent_dict))
-    print('C++ block_statement_dict: {0}'.format(cpp_parser.block_statement_dict))
-    print('C++ constant_dict: {0}'.format(cpp_parser.constant_dict))
-    print('C++ condition_statement_dict: {0}'.format(cpp_parser.condition_statement_dict))
-    print('C++ argument_dict: {0}'.format(cpp_parser.argument_dict))
-    print('C++ line_length_dict: {0}'.format(cpp_parser.line_length_dict))
+    print cpp_parser
+    # print('C++ indent_dict: {0}'.format(cpp_parser.indent_dict))
+    # print('C++ block_statement_dict: {0}'.format(cpp_parser.block_statement_dict))
+    # print('C++ constant_dict: {0}'.format(cpp_parser.constant_dict))
+    # print('C++ condition_statement_dict: {0}'.format(cpp_parser.condition_statement_dict))
+    # print('C++ argument_dict: {0}'.format(cpp_parser.argument_dict))
+    # print('C++ line_length_dict: {0}'.format(cpp_parser.line_length_dict))
