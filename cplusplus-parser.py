@@ -3,17 +3,24 @@ from os.path import isfile
 import re
 import os
 import sys
+import threading
+
 
 class cplusplusParser:
     def __init__(self):
         self.indent_dict = {'tab': 0, 'space': 0}
         self.block_statement_dict = {'one_space': 0, 'no_space': 0, 'new_line': 0}
-        self.constant_dict = {'pascal': 0,'all_caps': 0, 'not_all_caps': 0}
+        self.constant_dict = {'pascal': 0, 'all_caps': 0, 'not_all_caps': 0}
         self.condition_statement_dict = {'one_space': 0, 'no_space': 0}
         self.argument_dict = {'one_space': 0, 'no_space': 0}
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
         self.begin_with_upper_dict = {'upper': 0, 'lower': 0}
         self.whitespace_dict = {'both': 0, 'not_both': 0}
+
+    def run(self, cpp_file):
+        t1 = threading.Thread(target=self.parse, args=(cpp_file,))
+        t1.start()
+        t1.join(10)
 
     def parse(self, cpp_file):
         if not isfile(cpp_file) or (not cpp_file.endswith('.cpp')  and not cpp_file.endswith('.h')):
@@ -150,12 +157,7 @@ if __name__ == '__main__':
         if not file_name.endswith('.cpp') and not file_name.endswith('.h'):
             continue
         print "Parsing file : " + file_name
-        cpp_parser.parse(os.path.join(dir_path, file_name))
+        # cpp_parser.parse(os.path.join(dir_path, file_name))
+        cpp_parser.run(os.path.join(dir_path, file_name))
     print('\n')
     print cpp_parser
-    # print('C++ indent_dict: {0}'.format(cpp_parser.indent_dict))
-    # print('C++ block_statement_dict: {0}'.format(cpp_parser.block_statement_dict))
-    # print('C++ constant_dict: {0}'.format(cpp_parser.constant_dict))
-    # print('C++ condition_statement_dict: {0}'.format(cpp_parser.condition_statement_dict))
-    # print('C++ argument_dict: {0}'.format(cpp_parser.argument_dict))
-    # print('C++ line_length_dict: {0}'.format(cpp_parser.line_length_dict))

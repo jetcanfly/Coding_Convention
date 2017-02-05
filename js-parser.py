@@ -3,6 +3,8 @@ from os.path import isfile
 import re
 import os
 import sys
+import threading
+
 
 class JSParser:
     def __init__(self):
@@ -15,6 +17,11 @@ class JSParser:
         self.block_statement_dict = {'one_space': 0, 'no_space': 0, 'new_line': 0}
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
         self.quotes_dict = {'single_quote': 0, 'double_quote': 0}
+
+    def run(self, js_file):
+        t1 = threading.Thread(target=self.parse, args=(js_file,))
+        t1.start()
+        t1.join(10)
 
     def parse(self, js_file):
         if not isfile(js_file) or not js_file.endswith('.js'):
@@ -181,6 +188,7 @@ if __name__ == '__main__':
         if not file_name.endswith('.js'):
             continue
         print "Parsing file : " + file_name
-        js_parser.parse(os.path.join(dir_path, file_name))
+        # js_parser.parse(os.path.join(dir_path, file_name))
+        js_parser.run(os.path.join(dir_path, file_name))
     print('\n')
     print js_parser
