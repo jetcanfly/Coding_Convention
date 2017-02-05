@@ -17,6 +17,13 @@ class RubyParser:
         self.def_no_args_dict = {'omit': 0, 'use': 0}
         self.def_args_dict = {'omit': 0, 'use': 0}
 
+    def run(self, rb_file):
+        t1 = Process(target=self.parse, args=(rb_file,))
+        t1.start()
+        t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
+
     def parse(self, rb_file):
         if not isfile(rb_file) or not rb_file.endswith('.rb'):
             print "wrong type. need .rb file."
@@ -144,6 +151,9 @@ class RubyParser:
                 return_string += '{}\n'.format(self.__dict__[each])
         return return_string
 
+    def get_value(self):
+        return self
+
 
 class MyManager(BaseManager):
     pass
@@ -157,13 +167,6 @@ def manager():
 MyManager.register('RubyParser', RubyParser)
 
 
-def run(ruby_parser, rb_file):
-    t1 = Process(target=ruby_parser.parse, args=(rb_file,))
-    t1.start()
-    t1.join(10)
-    if t1.is_alive():
-        t1.terminate()
-
 if __name__ == '__main__':
     manager = manager()
     rb_parser = manager.RubyParser()
@@ -174,5 +177,6 @@ if __name__ == '__main__':
             continue
         file_count += 1
         print str(file_count) + " Parsing file : " + file_name
-        run(rb_parser, os.path.join(dir_path, file_name))
+        rb_parser.run(os.path.join(dir_path, file_name))
+        print rb_parser.get_value()
     print('\n')

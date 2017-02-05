@@ -19,6 +19,13 @@ class JSParser:
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
         self.quotes_dict = {'single_quote': 0, 'double_quote': 0}
 
+    def run(self, js_file):
+        t1 = Process(target=self.parse, args=(js_file,))
+        t1.start()
+        t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
+
     def parse(self, js_file):
         if not isfile(js_file) or not js_file.endswith('.js'):
             print "wrong type. need .js file."
@@ -176,6 +183,9 @@ class JSParser:
                 return_string += '{}\n'.format(self.__dict__[each])
         return return_string
 
+    def get_value(self):
+        return self
+
 
 class MyManager(BaseManager):
     pass
@@ -207,5 +217,6 @@ if __name__ == '__main__':
             continue
         file_count += 1
         print str(file_count) + " Parsing file : " + file_name
-        run(js_parser, os.path.join(dir_path, file_name))
+        js_parser.run(os.path.join(dir_path, file_name))
+        print js_parser.get_value()
     print('\n')

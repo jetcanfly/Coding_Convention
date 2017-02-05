@@ -18,6 +18,13 @@ class JavaParser:
         self.static_var_dict = {'prefix': 0, 'no_prefix': 0}
         self.final_static_order_dict = {'accstfin': 0, 'accfinst': 0, 'finaccst': 0, 'staccfin': 0}
 
+    def run(self, java_file):
+        t1 = Process(target=self.parse, args=(java_file,))
+        t1.start()
+        t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
+
     def parse(self, java_file):
         if not isfile(java_file) or not java_file.endswith('.java'):
             print "wrong type. need .java file."
@@ -152,6 +159,9 @@ class JavaParser:
                 return_string += '{}\n'.format(self.__dict__[each])
         return return_string
 
+    def get_value(self):
+        return self
+
 
 class MyManager(BaseManager):
     pass
@@ -165,13 +175,6 @@ def manager():
 MyManager.register('JavaParser', JavaParser)
 
 
-def run(j_parser, java_file):
-    t1 = Process(target=j_parser.parse, args=(java_file,))
-    t1.start()
-    t1.join(10)
-    if t1.is_alive():
-        t1.terminate()
-
 if __name__ == '__main__':
     java_parser = JavaParser()
     dir_path = url = sys.argv[1]
@@ -181,5 +184,6 @@ if __name__ == '__main__':
             continue
         file_count += 1
         print str(file_count) + " Parsing file : " + file_name
-        run(java_parser, os.path.join(dir_path, file_name))
+        java_parser.run(os.path.join(dir_path, file_name))
+        print java_parser.get_value()
     print('\n')

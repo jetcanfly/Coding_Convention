@@ -88,6 +88,9 @@ class PythonParser:
                 return_string += '{}\n'.format(self.__dict__[each])
         return return_string
 
+    def get_value(self):
+        return self
+
 
 class MyManager(BaseManager):
     pass
@@ -101,14 +104,6 @@ def manager():
 MyManager.register('PythonParser', PythonParser)
 
 
-def run(python_parser, py_file):
-    t1 = Process(target=python_parser.parse, args=(py_file,))
-    t1.start()
-    t1.join(10)
-    if t1.is_alive():
-        t1.terminate()
-
-
 if __name__ == '__main__':
     manager = manager()
     py_parser = manager.PythonParser()
@@ -119,5 +114,7 @@ if __name__ == '__main__':
             continue
         file_count += 1
         print str(file_count) + " Parsing file : " + file_name
-        run(py_parser, os.path.join(dir_path, file_name))
+        py_parser.run(os.path.join(dir_path, file_name))
+        print py_parser.get_value()
+
     print('\n')

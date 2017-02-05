@@ -18,6 +18,13 @@ class cplusplusParser:
         self.begin_with_upper_dict = {'upper': 0, 'lower': 0}
         self.whitespace_dict = {'both': 0, 'not_both': 0}
 
+    def run(self, cpp_file):
+        t1 = Process(target=self.parse, args=(cpp_file,))
+        t1.start()
+        t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
+
     def parse(self, cpp_file):
         if not isfile(cpp_file) or (not cpp_file.endswith('.cpp') and not cpp_file.endswith('.h')):
             print "wrong type. need .cpp file or .h file."
@@ -33,7 +40,7 @@ class cplusplusParser:
             self.line_length(stream)
             self.begin_with_upper(stream)
             self.whitespace(stream)
-        print self
+        # print self
 
     def indent(self, stream):
         tab_pattern = re.compile(r'^\t+.*', re.M)
@@ -147,6 +154,9 @@ class cplusplusParser:
                 return_string += '{}\n'.format(self.__dict__[each])
         return return_string
 
+    def get_value(self):
+        return self
+
 
 class MyManager(BaseManager):
     pass
@@ -160,14 +170,6 @@ def manager():
 MyManager.register('cplusplusParser', cplusplusParser)
 
 
-def run(c_parser, cpp_file):
-    t1 = Process(target=c_parser.parse, args=(cpp_file,))
-    t1.start()
-    t1.join(10)
-    if t1.is_alive():
-        t1.terminate()
-
-
 if __name__ == '__main__':
     manager = manager()
     cpp_parser = manager.cplusplusParser()
@@ -178,5 +180,6 @@ if __name__ == '__main__':
             continue
         file_count += 1
         print str(file_count) + " Parsing file : " + file_name
-        run(cpp_parser, os.path.join(dir_path, file_name))
+        cpp_parser.parse(os.path.join(dir_path, file_name))
+        print cpp_parser.get_value()
     print('\n')
