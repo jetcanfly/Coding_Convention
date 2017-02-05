@@ -4,6 +4,7 @@ import re
 import os
 import sys
 from multiprocessing import Process
+from multiprocessing.managers import BaseManager
 
 
 class JSParser:
@@ -17,13 +18,6 @@ class JSParser:
         self.block_statement_dict = {'one_space': 0, 'no_space': 0, 'new_line': 0}
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
         self.quotes_dict = {'single_quote': 0, 'double_quote': 0}
-
-    def run(self, js_file):
-        t1 = Process(target=self.parse, args=(js_file,))
-        t1.start()
-        t1.join(10)
-        if t1.is_alive():
-            t1.terminate()
 
     def parse(self, js_file):
         if not isfile(js_file) or not js_file.endswith('.js'):
@@ -41,6 +35,7 @@ class JSParser:
             self.block_statement(stream)
             self.line_length(stream)
             self.quotes(stream)
+        print self
 
     def comma(self, stream):
         first_pattern = re.compile(r'^\s*,.*', re.M)
@@ -182,14 +177,35 @@ class JSParser:
         return return_string
 
 
+class MyManager(BaseManager):
+    pass
+
+
+def manager():
+    m = MyManager()
+    m.start()
+    return m
+
+MyManager.register('JSParser', JSParser)
+
+
+def run(javascript_parser, js_file):
+    t1 = Process(target=javascript_parser.parse, args=(js_file,))
+    t1.start()
+    t1.join(10)
+    if t1.is_alive():
+        t1.terminate()
+
+
 if __name__ == '__main__':
-    js_parser = JSParser()
-    print js_parser
+    manager = manager()
+    js_parser = manager.JSParser()
     dir_path = url = sys.argv[1]
+    file_count = 0
     for file_name in os.listdir(dir_path):
         if not file_name.endswith('.js'):
             continue
-        print "Parsing file : " + file_name
-        js_parser.run(os.path.join(dir_path, file_name))
+        file_count += 1
+        print str(file_count) + " Parsing file : " + file_name
+        run(js_parser, os.path.join(dir_path, file_name))
     print('\n')
-    print js_parser

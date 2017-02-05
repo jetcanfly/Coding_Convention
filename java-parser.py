@@ -4,6 +4,7 @@ import re
 import os
 import sys
 from multiprocessing import Process
+from multiprocessing.managers import BaseManager
 
 
 class JavaParser:
@@ -16,13 +17,6 @@ class JavaParser:
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
         self.static_var_dict = {'prefix': 0, 'no_prefix': 0}
         self.final_static_order_dict = {'accstfin': 0, 'accfinst': 0, 'finaccst': 0, 'staccfin': 0}
-
-    def run(self, java_file):
-        t1 = Process(target=self.parse, args=(java_file,))
-        t1.start()
-        t1.join(10)
-        if t1.is_alive():
-            t1.terminate()
 
     def parse(self, java_file):
         if not isfile(java_file) or not java_file.endswith('.java'):
@@ -39,6 +33,7 @@ class JavaParser:
             self.line_length(stream)
             self.static_var(stream)
             self.final_static_order(stream)
+        print self
 
     def indent(self, stream):
         tab_pattern = re.compile(r'^\t+.*', re.M)
@@ -158,13 +153,33 @@ class JavaParser:
         return return_string
 
 
+class MyManager(BaseManager):
+    pass
+
+
+def manager():
+    m = MyManager()
+    m.start()
+    return m
+
+MyManager.register('JavaParser', JavaParser)
+
+
+def run(j_parser, java_file):
+    t1 = Process(target=j_parser.parse, args=(java_file,))
+    t1.start()
+    t1.join(10)
+    if t1.is_alive():
+        t1.terminate()
+
 if __name__ == '__main__':
     java_parser = JavaParser()
     dir_path = url = sys.argv[1]
+    file_count = 0
     for file_name in os.listdir(dir_path):
         if not file_name.endswith('.java'):
             continue
-        print "Parsing file : " + file_name
-        java_parser.run(os.path.join(dir_path, file_name))
+        file_count += 1
+        print str(file_count) + " Parsing file : " + file_name
+        run(java_parser, os.path.join(dir_path, file_name))
     print('\n')
-    print java_parser

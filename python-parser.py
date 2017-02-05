@@ -4,6 +4,7 @@ import re
 import os
 import sys
 from multiprocessing import Process
+from multiprocessing.managers import BaseManager
 
 
 class PythonParser:
@@ -16,7 +17,7 @@ class PythonParser:
     def run(self, py_file):
         t1 = Process(target=self.parse, args=(py_file,))
         t1.start()
-        t1.join(10)
+        t1.join(5)
         if t1.is_alive():
             t1.terminate()
 
@@ -31,6 +32,7 @@ class PythonParser:
             self.line_length(stream)
             self.imports(stream)
             self.whitespace(stream)
+        print self
 
     def indent(self, stream):
         tab_pattern = re.compile(r'^\t+.*', re.M)
@@ -87,13 +89,35 @@ class PythonParser:
         return return_string
 
 
+class MyManager(BaseManager):
+    pass
+
+
+def manager():
+    m = MyManager()
+    m.start()
+    return m
+
+MyManager.register('PythonParser', PythonParser)
+
+
+def run(python_parser, py_file):
+    t1 = Process(target=python_parser.parse, args=(py_file,))
+    t1.start()
+    t1.join(10)
+    if t1.is_alive():
+        t1.terminate()
+
+
 if __name__ == '__main__':
-    py_parser = PythonParser()
+    manager = manager()
+    py_parser = manager.PythonParser()
     dir_path = url = sys.argv[1]
+    file_count = 0
     for file_name in os.listdir(dir_path):
         if not file_name.endswith('.py'):
             continue
-        print "Parsing file : " + file_name
-        py_parser.run(os.path.join(dir_path, file_name))
+        file_count += 1
+        print str(file_count) + " Parsing file : " + file_name
+        run(py_parser, os.path.join(dir_path, file_name))
     print('\n')
-    print py_parser
