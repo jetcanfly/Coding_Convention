@@ -3,7 +3,7 @@ from os.path import isfile
 import re
 import os
 import sys
-import threading
+from multiprocessing import Process
 
 
 class cplusplusParser:
@@ -18,9 +18,11 @@ class cplusplusParser:
         self.whitespace_dict = {'both': 0, 'not_both': 0}
 
     def run(self, cpp_file):
-        t1 = threading.Thread(target=self.parse, args=(cpp_file,))
+        t1 = Process(target=self.parse, args=(cpp_file,))
         t1.start()
         t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
 
     def parse(self, cpp_file):
         if not isfile(cpp_file) or (not cpp_file.endswith('.cpp')  and not cpp_file.endswith('.h')):
@@ -157,7 +159,6 @@ if __name__ == '__main__':
         if not file_name.endswith('.cpp') and not file_name.endswith('.h'):
             continue
         print "Parsing file : " + file_name
-        # cpp_parser.parse(os.path.join(dir_path, file_name))
         cpp_parser.run(os.path.join(dir_path, file_name))
     print('\n')
     print cpp_parser

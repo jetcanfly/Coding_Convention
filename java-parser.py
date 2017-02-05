@@ -3,6 +3,8 @@ from os.path import isfile
 import re
 import os
 import sys
+from multiprocessing import Process
+
 
 class JavaParser:
     def __init__(self):
@@ -14,6 +16,13 @@ class JavaParser:
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
         self.static_var_dict = {'prefix': 0, 'no_prefix': 0}
         self.final_static_order_dict = {'accstfin': 0, 'accfinst': 0, 'finaccst': 0, 'staccfin': 0}
+
+    def run(self, java_file):
+        t1 = Process(target=self.parse, args=(java_file,))
+        t1.start()
+        t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
 
     def parse(self, java_file):
         if not isfile(java_file) or not java_file.endswith('.java'):
@@ -140,6 +149,15 @@ class JavaParser:
         if staccfin_re is not None:
             self.final_static_order_dict['staccfin'] += len(staccfin_re)
 
+    def __str__(self):
+        return_string = ''
+        for each in self.__dict__:
+            if each.endswith('_dict'):
+                return_string += '{}: '.format(each).ljust(30)
+                return_string += '{}\n'.format(self.__dict__[each])
+        return return_string
+
+
 if __name__ == '__main__':
     java_parser = JavaParser()
     dir_path = url = sys.argv[1]
@@ -147,13 +165,6 @@ if __name__ == '__main__':
         if not file_name.endswith('.java'):
             continue
         print "Parsing file : " + file_name
-        java_parser.parse(os.path.join(dir_path, file_name))
+        java_parser.run(os.path.join(dir_path, file_name))
     print('\n')
-    print('Java indent_dict: {0}'.format(java_parser.indent_dict))
-    print('Java block_statement_dict: {0}'.format(java_parser.block_statement_dict))
-    print('Java constant_dict: {0}'.format(java_parser.constant_dict))
-    print('Java condition_statement_dict: {0}'.format(java_parser.condition_statement_dict))
-    print('Java argument_dict: {0}'.format(java_parser.argument_dict))
-    print('Java line_length_dict: {0}'.format(java_parser.line_length_dict))
-    print('Java static_var_dict: {0}'.format(java_parser.static_var_dict))
-    print('Java final_static_order_dict: {0}'.format(java_parser.final_static_order_dict))
+    print java_parser

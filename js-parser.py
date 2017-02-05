@@ -3,7 +3,7 @@ from os.path import isfile
 import re
 import os
 import sys
-import threading
+from multiprocessing import Process
 
 
 class JSParser:
@@ -19,9 +19,11 @@ class JSParser:
         self.quotes_dict = {'single_quote': 0, 'double_quote': 0}
 
     def run(self, js_file):
-        t1 = threading.Thread(target=self.parse, args=(js_file,))
+        t1 = Process(target=self.parse, args=(js_file,))
         t1.start()
         t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
 
     def parse(self, js_file):
         if not isfile(js_file) or not js_file.endswith('.js'):
@@ -188,7 +190,6 @@ if __name__ == '__main__':
         if not file_name.endswith('.js'):
             continue
         print "Parsing file : " + file_name
-        # js_parser.parse(os.path.join(dir_path, file_name))
         js_parser.run(os.path.join(dir_path, file_name))
     print('\n')
     print js_parser

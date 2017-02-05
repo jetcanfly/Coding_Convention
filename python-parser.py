@@ -3,6 +3,8 @@ from os.path import isfile
 import re
 import os
 import sys
+from multiprocessing import Process
+
 
 class PythonParser:
     def __init__(self):
@@ -10,6 +12,13 @@ class PythonParser:
         self.line_length_dict = {'char80': 0, 'char120': 0, 'char150': 0}
         self.imports_dict = {'separated': 0, 'non_separated': 0}
         self.whitespace_dict = {'non_extra': 0, 'extra': 0}
+
+    def run(self, py_file):
+        t1 = Process(target=self.parse, args=(py_file,))
+        t1.start()
+        t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
 
     def parse(self, py_file):
         if not isfile(py_file) or not py_file.endswith('.py'):
@@ -69,6 +78,14 @@ class PythonParser:
         if extra_re is not None:
             self.whitespace_dict['extra'] += len(extra_re)
 
+    def __str__(self):
+        return_string = ''
+        for each in self.__dict__:
+            if each.endswith('_dict'):
+                return_string += '{}: '.format(each).ljust(30)
+                return_string += '{}\n'.format(self.__dict__[each])
+        return return_string
+
 
 if __name__ == '__main__':
     py_parser = PythonParser()
@@ -77,9 +94,6 @@ if __name__ == '__main__':
         if not file_name.endswith('.py'):
             continue
         print "Parsing file : " + file_name
-        py_parser.parse(os.path.join(dir_path, file_name))
+        py_parser.run(os.path.join(dir_path, file_name))
     print('\n')
-    print('Python indent_dict: {0}'.format(py_parser.indent_dict))
-    print('Python line_length_dict: {0}'.format(py_parser.line_length_dict))
-    print('Python imports_dict: {0}'.format(py_parser.imports_dict))
-    print('Python whitespace_dict: {0}'.format(py_parser.whitespace_dict))
+    print py_parser

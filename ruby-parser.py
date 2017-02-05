@@ -3,6 +3,7 @@ from os.path import isfile
 import re
 import os
 import sys
+from multiprocessing import Process
 
 
 class RubyParser:
@@ -14,6 +15,13 @@ class RubyParser:
         self.numeric_literal_dict = {'underscore': 0, 'no_underscore': 0}
         self.def_no_args_dict = {'omit': 0, 'use': 0}
         self.def_args_dict = {'omit': 0, 'use': 0}
+
+    def run(self, rb_file):
+        t1 = Process(target=self.parse, args=(rb_file,))
+        t1.start()
+        t1.join(10)
+        if t1.is_alive():
+            t1.terminate()
 
     def parse(self, rb_file):
         if not isfile(rb_file) or not rb_file.endswith('.rb'):
@@ -134,6 +142,15 @@ class RubyParser:
         if use_re is not None:
             self.def_args_dict['use'] += len(use_re)
 
+    def __str__(self):
+        return_string = ''
+        for each in self.__dict__:
+            if each.endswith('_dict'):
+                return_string += '{}: '.format(each).ljust(30)
+                return_string += '{}\n'.format(self.__dict__[each])
+        return return_string
+
+
 if __name__ == '__main__':
     rb_parser = RubyParser()
     dir_path = url = sys.argv[1]
@@ -141,12 +158,6 @@ if __name__ == '__main__':
         if not file_name.endswith('.rb'):
             continue
         print "Parsing file : " + file_name
-        rb_parser.parse(os.path.join(dir_path, file_name))
+        rb_parser.run(os.path.join(dir_path, file_name))
     print('\n')
-    print('Ruby indent_dict: {0}'.format(rb_parser.indent_dict))
-    print('Ruby line_length_dict: {0}'.format(rb_parser.line_length_dict))
-    print('Ruby whitespace_dict: {0}'.format(rb_parser.whitespace_dict))
-    print('Ruby assign_default_val_dict: {0}'.format(rb_parser.assign_default_val_dict))
-    print('Ruby numeric_literal_dict: {0}'.format(rb_parser.numeric_literal_dict))
-    print('Ruby def_no_args_dict: {0}'.format(rb_parser.def_no_args_dict))
-    print('Ruby def_args_dict: {0}'.format(rb_parser.def_args_dict))
+    print rb_parser
