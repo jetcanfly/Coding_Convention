@@ -37,7 +37,7 @@ class cplusplusParser:
 
     def indent(self, stream):
         tab_pattern = re.compile(r'^\t+.*', re.M)
-        space_pattern = re.compile(r'^\s+.*', re.M)
+        space_pattern = re.compile(r'^ +.*', re.M)
 
         tab_re = re.findall(tab_pattern, stream)
         if tab_re is not None:
